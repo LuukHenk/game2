@@ -1,4 +1,4 @@
-love.window.setFullscreen(true, 'desktop')           --set gamescreen full screen
+love.window.setFullscreen(true, 'desktop')
 love.graphics.setDefaultFilter('nearest', 'nearest') --default image filter
 
 local gameMusic = {}
@@ -6,7 +6,7 @@ local platform = {}
 local player = {}
 local objects = {}
 
-local scaleFactor = 10
+local scaleFactor = 10 --image scaling factor
 
 function love.load()
 	gameMusic = love.audio.newSource('minimal.mp3', 'stream')
@@ -26,7 +26,7 @@ function love.update(dt)
 		end
 
 	else
-		if love.keyboard.isDown('space') then
+		if love.keyboard.isDown('space', 'w', 'up') then
 		 	player.currentJumpingSpeed = player.jumpingSpeed
 		 end
 	end
@@ -35,15 +35,16 @@ function love.update(dt)
 	player.y = player.y - player.currentJumpingSpeed * dt --move up
 
 	if objectCollision(player, objects) == false then
-		if love.keyboard.isDown('a') then
+		-- if love.keyboard.isDown('a', 'left') and leftWallCollision(player, objects) == false then
+		if love.keyboard.isDown('a', 'left') then
 			player.currentImg = player.leftImg
 			player.x = player.x - player.speed * dt
 
-		elseif love.keyboard.isDown('d') then
+		elseif love.keyboard.isDown('d', 'right') then
 			player.currentImg = player.rightImg
 			player.x = player.x + player.speed * dt
 
-		elseif love.keyboard.isDown('s') then
+		elseif love.keyboard.isDown('s', 'down') then
 			player.currentImg = player.frontLowImg
 
 		else
@@ -54,10 +55,10 @@ end
 function objectCollision(player, objects)
 	for _,object in pairs(objects) do
 		if object.solid == true then
-			if player.x + player.width >= object.x and
-				 player.x <= object.x + object.width and
-				 player.y + player.height >= object.y and
-				 player.y <= object.y + object.height then
+			if player.x + player.width >= object.x and --right side player
+				 player.x <= object.x + object.width and --left side player
+				 player.y + player.height >= object.y and --bottem player
+				 player.y <= object.y + object.height then --top of player
 				 return(true)
 		  end
 	  end
@@ -71,6 +72,19 @@ function floorCollision(player, objects)
 			if player.x + player.width >= object.x and
 				 player.x <= object.x + object.width and
 				 player.y + player.height + 1 >= object.y then
+				 return(true)
+			 end
+		end
+	end
+	return(false)
+end
+
+function leftWallCollision(player, objects)
+	for _,object in pairs(objects) do
+		if object.solid == true then
+			if player.y + player.height >= object.y and
+				 player.y <= object.y + object.height and
+				 player.x <= object.x + object.width + 1 then
 				 return(true)
 			 end
 		end
